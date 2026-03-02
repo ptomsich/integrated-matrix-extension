@@ -75,6 +75,10 @@ Table <<tbl-subextensions>> lists all computational sub-extensions in the Integr
 |Zvvfmmd        ^| Zve64d       | IEEE binary64, IEEE binary64 | IEEE binary64
 |===
 
+Microscaling subextensions that add E8M0-scaled variants of the narrow
+input formats (OFP4, OFP8) are listed separately in
+<<tbl-mx-subextensions>>.
+
 === New fields in the Vector Type (`vtype`) Register
 
 The Integrated Matrix family of extensions defines the following additional fields in the `vtype` CSR:
@@ -430,6 +434,31 @@ Microscaling is particularly useful with narrow input formats (OFP4, OFP8)
 where the limited dynamic range of the per-element format is compensated by
 the shared E8M0 exponent, enabling high-throughput inference on
 microscaling-quantised models.
+
+===== Microscaling subextensions
+
+Each microscaling subextension enables the `vm=0` / `v0.scale` encoding for
+a specific (input format, accumulator format) combination.  A microscaling
+subextension implies its corresponding base subextension: for example,
+Zvvfmmmxfp4h implies Zvvfmmofp4h, which provides the underlying OFP4→FP16
+instruction support.  Only narrow input formats (OFP4, OFP8) define
+microscaling variants, as wider formats (IEEE binary16 and above) have
+sufficient exponent range to not require a shared scale.
+
+[#tbl-mx-subextensions]
+.Microscaling subextensions
+[cols="1,1,3,3", options="header"]
+|===
+|Extension        | Implies          | Multiplicand Types                | Accumulator Type
+
+|Zvvfmmmxfp4ofp8 ^| Zvvfmmofp4opf8  | MXFP4 (E8M0-scaled OFP4), MXFP4  | OFP8
+|Zvvfmmmxfp4h    ^| Zvvfmmofp4h     | MXFP4, MXFP4                     | IEEE binary16
+|Zvvfmmmxfp4bf16 ^| Zvvfmmofp4bf16  | MXFP4, MXFP4                     | BFloat16
+|Zvvfmmmxfp8     ^| Zvvfmmofp8      | MXFP8 (E8M0-scaled OFP8), MXFP8  | OFP8
+|Zvvfmmmxfp8h    ^| Zvvfmmofp8h     | MXFP8, MXFP8                     | IEEE binary16
+|Zvvfmmmxfp8bf16 ^| Zvvfmmofp8bf16  | MXFP8, MXFP8                     | BFloat16
+|Zvvfmmmxfp8w    ^| Zvvfmmofp8w     | MXFP8, MXFP8                     | IEEE binary32
+|===
 
 [#zvvmtls,reftext=Load/store instructions for matrix tiles]
 === Zvvmtls: Extension for loading and storing vector-registers interpreted as 2D matrix-tiles
