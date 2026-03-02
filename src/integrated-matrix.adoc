@@ -94,57 +94,57 @@ are not shown below.
 
 [#tbl-fp-encoding-map]
 .Floating-point multiply-accumulate encoding map
-[cols="2,1,1,1,2,1,2,1,2,2,2", options="header"]
+[cols="2,1,1,1,2,1,2,1,2,2,2,2", options="header"]
 |===
-| Instruction | SEW | EEW | altfmt_A | Input A | altfmt_B | Input B | altfmt | C Type | Subextension | MX Subext. (vm=0)
+| Instruction | SEW | EEW | altfmt_A | Input A | altfmt_B | Input B | altfmt | C Type | Subextension | MX BS=32 (vm=0) | MX BS=16 (vm=0)
 
-11+^e| *vfmmacc.vv (W=1)*
+12+^e| *vfmmacc.vv (W=1)*
 
-| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8
-| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8
-| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8
-| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8
-| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP16  | Zvvfmmh        | —
-| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 1 | BF16  | _reserved_     | —
-| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP16  | _reserved_     | —
-| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 1 | BF16  | Zvvfmmbf16     | —
-| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 0 | FP32  | Zvvfmmf        | —
-| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —
-| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 0 | FP64  | Zvvfmmd        | —
-| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 1 | —     | _reserved_     | —
+| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8      | Zvvfmmnxfp8
+| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8      | Zvvfmmnxfp8
+| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8      | Zvvfmmnxfp8
+| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8      | Zvvfmmnxfp8
+| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP16  | Zvvfmmh        | —                 | —
+| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 1 | BF16  | _reserved_     | —                 | —
+| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP16  | _reserved_     | —                 | —
+| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 1 | BF16  | Zvvfmmbf16     | —                 | —
+| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 0 | FP32  | Zvvfmmf        | —                 | —
+| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —                 | —
+| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 0 | FP64  | Zvvfmmd        | —                 | —
+| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 1 | —     | _reserved_     | —                 | —
 
-11+^e| *vfwmmacc.vv (W=2)*
+12+^e| *vfwmmacc.vv (W=2)*
 
-| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
-| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
-| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
-| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
-| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h
-| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16
-| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h
-| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16
-| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP32  | Zvvfmmhf       | —
-| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 1 | —     | _reserved_     | —
-| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP32  | Zvvfmmbf16f    | —
-| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 1 | —     | _reserved_     | —
-| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 0 | FP64  | Zvvfmmfd       | —
-| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —
+| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8  | Zvvfmmnxfp4ofp8
+| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8  | Zvvfmmnxfp4ofp8
+| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8  | Zvvfmmnxfp4ofp8
+| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8  | Zvvfmmnxfp4ofp8
+| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h     | Zvvfmmnxfp8h
+| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16  | Zvvfmmnxfp8bf16
+| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h     | Zvvfmmnxfp8h
+| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16  | Zvvfmmnxfp8bf16
+| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP32  | Zvvfmmhf       | —                 | —
+| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 1 | —     | _reserved_     | —                 | —
+| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP32  | Zvvfmmbf16f    | —                 | —
+| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 1 | —     | _reserved_     | —                 | —
+| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 0 | FP64  | Zvvfmmfd       | —                 | —
+| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —                 | —
 
-11+^e| *vfqwmmacc.vv (W=4)*
+12+^e| *vfqwmmacc.vv (W=4)*
 
-| vfqwmmacc | 8  | 2 | × | —    | × | —     | × | —     | _reserved_      | —
-| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h
-| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16
-| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h
-| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16
-| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w
-| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 1 | —     | _reserved_     | —
-| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w
-| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 1 | —     | _reserved_     | —
-| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 0 | FP64  | Zvvfmmhd       | —
-| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 1 | —     | _reserved_     | —
-| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 0 | FP64  | Zvvfmmbf16d    | —
-| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 1 | —     | _reserved_     | —
+| vfqwmmacc | 8  | 2 | × | —    | × | —     | × | —     | _reserved_      | —                 | —
+| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h     | Zvvfmmnxfp4h
+| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16  | Zvvfmmnxfp4bf16
+| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h     | Zvvfmmnxfp4h
+| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16  | Zvvfmmnxfp4bf16
+| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w     | Zvvfmmnxfp8w
+| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 1 | —     | _reserved_     | —                 | —
+| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w     | Zvvfmmnxfp8w
+| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 1 | —     | _reserved_     | —                 | —
+| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 0 | FP64  | Zvvfmmhd       | —                 | —
+| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 1 | —     | _reserved_     | —                 | —
+| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 0 | FP64  | Zvvfmmbf16d    | —                 | —
+| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 1 | —     | _reserved_     | —                 | —
 |===
 
 ===== Integer encoding map
@@ -223,6 +223,7 @@ The Integrated Matrix family of extensions defines the following additional fiel
 * `lambda[2:0]` at `vtype[XLEN-2:XLEN-4]` is the Selected Lambda
 * `altfmt_A` at `vtype[9]` is the Alternate Format for input A
 * `altfmt_B` at `vtype[10]` is the Alternate Format for input B
+* `bs` at `vtype[11]` is the Block Size selector for microscaling
 
 ==== Selected lambda (`lambda[2:0]`) field
 
@@ -305,6 +306,23 @@ For integer multiply-accumulate instructions, `altfmt_A` and `altfmt_B` select w
 
 | 0 | Signed
 | 1 | Unsigned
+|===
+
+[#integrated-matrix-bs]
+==== Microscaling block size (`bs`)
+
+The `bs` field is a 1-bit read/write field in the `vtype` CSR that selects
+the block size used for microscaling operations (`vm=0`).  When `vm=1`, the
+`bs` field is ignored.
+
+.Block size encoding
+[cols="1,2"]
+[%autowidth,float="center",align="center",options="header"]
+|===
+| bs | Block size
+
+| 0 | 32 elements
+| 1 | 16 elements
 |===
 
 === Storage formats
@@ -479,18 +497,25 @@ The accumulator register group has cardinality MUL_C = VLEN ÷ (SEW × λ²), in
 
 As with the integer multiply-accumulate instructions, vector masking is not
 supported.  When `vm=0`, the instruction does not apply a vector mask;
-instead, `v0` supplies per-tile-row and per-tile-column E8M0 scaling factors
-for microscaling operation (see <<integrated-matrix-microscaling>>).
+instead, `v0` supplies paired E8M0 block-scale factors for microscaling
+operation (see <<integrated-matrix-microscaling>>).
 
 [#integrated-matrix-microscaling]
 ==== Microscaling support (`v0.scale`)
 
 Microscaling floating-point formats (as defined by the OCP Microscaling
 Formats specification) represent tensors using narrow per-element values
-(e.g., OFP4 or OFP8) combined with a coarser shared scale factor.
+(e.g., OFP4 or OFP8) combined with a coarser shared scale factor applied
+to a _block_ of consecutive elements along the K dimension.  The standard
+OCP MX block size is 32 elements; however, recent research (Lee et al.,
+"MX+: A Robust Framework for Finer-Grained MX Quantization", MICRO '25)
+demonstrates that a block size of 16 significantly improves accuracy for
+activation tensors with outliers.
+
 The Integrated Matrix extensions support microscaling on all floating-point
 multiply-accumulate instructions by encoding `vm=0` in the instruction and
-supplying E8M0 scale factors through `v0`.
+supplying paired E8M0 block-scale factors through `v0`.  The `bs` field in
+`vtype` selects the block size (32 or 16 elements).
 
 The assembly syntax for a microscaled operation appends `v0.scale` as the
 final operand, analogous to `v0.t` for masked operations in the base V
@@ -501,63 +526,108 @@ extension:
     vfqwmmacc.vv vd, vs1, vs2, v0.scale
 
 When `vm=0` is not specified (i.e., `vm=1`, the default), no scaling is
-applied and `v0` is not read.
+applied, `v0` is not read, and the `bs` field is ignored.
 
 ===== Semantics
 
-When microscaling is active, each output element is computed as:
+When microscaling is active (`vm=0`), each output element is computed as:
 
-    C[m, n] ← C[m, n] + scale_A[m] × scale_B[n] × Σ_{k} A[m, k] × B[k, n]
+    C[m, n] ← C[m, n] + Σ_{s=0}^{S−1} scale_A[m][s] × scale_B[n][s] ×
+                    Σ_{k ∈ block s} A[m, k] × B[k, n]
 
-where `scale_A[m]` and `scale_B[n]` are power-of-two values decoded from
+where S = ⌈K_eff / block_size⌉ is the number of scale blocks per
+row/column, and block _s_ covers elements
+[s × block_size, min((s+1) × block_size, K_eff) − 1].
+
+`scale_A[m][s]` and `scale_B[n][s]` are power-of-two values decoded from
 8-bit E8M0 fields in `v0`.  The E8M0 format uses an 8-bit biased exponent
 (bias 127) representing values from 2^−127^ to 2^127^; the bit pattern
 0xFF encodes NaN.
 
-The per-row scale for A and the per-column scale for B are applied as exact
-power-of-two multiplications (implemented as exponent additions) and
-therefore introduce no rounding error.  If either `scale_A[m]` or
-`scale_B[n]` is NaN (0xFF), the corresponding output element C[m, n] is set
-to the default NaN regardless of the input element values.
+The per-block scales for A and B are applied as exact power-of-two
+multiplications (implemented as exponent additions) and therefore introduce
+no rounding error.  If any `scale_A[m][s]` or `scale_B[n][s]` is NaN
+(0xFF), the corresponding output element C[m, n] is set to the default NaN
+regardless of the input element values.
 
 ===== Scale layout in `v0`
 
-The register `v0` holds 2 × M E8M0 scale values, where M = N = VLEN ÷
-(SEW × λ) is the tile dimension.  Each scale occupies one byte, packed
-in element order at 8-bit granularity:
+The register `v0` holds paired E8M0 scale values at an effective element
+width of 16 bits.  Each 16-bit element contains one (scale_A, scale_B)
+pair:
 
-[cols="2,3", options="header"]
+* Lower byte [7:0]: `scale_A` — the E8M0 scale for a row of A
+* Upper byte [15:8]: `scale_B` — the E8M0 scale for a column of B
+
+Element index _p_ = _m_ × S + _s_ addresses the scale pair for row (or
+column) _m_ at block _s_, where S = ⌈K_eff / block_size⌉.  Specifically:
+
+* `scale_A[m][s]` is the lower byte of the 16-bit element at index (m × S + s)
+* `scale_B[n][s]` is the upper byte of the 16-bit element at index (n × S + s)
+
+The total number of 16-bit elements consumed per tile dimension is M × S,
+where M = N = VLEN ÷ (SEW × λ).  The capacity requirement is
+M × S × 16 ≤ VLEN bits.
+
+**Capacity proof** (for block_size = 32):
+
+* When K_eff ≥ 32: M × S = (VLEN / (SEW × λ)) × (λ × W × LMUL / 32) =
+  VLEN × W × LMUL / (SEW × 32).  The maximum occurs at (SEW=16, W=4, LMUL=8)
+  or (SEW=8, W=2, LMUL=8), giving M × S = VLEN / 16.  Since each pair is
+  16 bits, the total is M × S × 16 = VLEN.  Fits exactly.
+* When K_eff < 32: S = 1, so M × S = M = VLEN / (SEW × λ).  Because
+  microscaling requires SEW × λ ≥ 16, we have M ≤ VLEN / 16.  Fits.
+
+.Scale capacity (block_size = 32, VLEN = 256)
+[cols="1,1,1,1,1,1,1", options="header"]
 |===
-| Byte position in `v0` | Content
+| SEW | λ | W | LMUL | M | S | 16-bit pairs (M×S)
 
-| bytes [0, M − 1]
-| E8M0 scales for rows 0 .. M−1 of A (_vs1_)
-
-| bytes [M, 2M − 1]
-| E8M0 scales for columns 0 .. N−1 of B (_vs2_)
+| 8  | 2 | 1 | 1 | 16 | 1 | 16
+| 8  | 2 | 1 | 8 | 16 | 1 | 16
+| 8  | 2 | 2 | 1 | 16 | 1 | 16
+| 8  | 2 | 2 | 8 | 16 | 1 | 16
+| 16 | 1 | 1 | 1 | 16 | 1 | 16
+| 16 | 1 | 1 | 2 | 16 | 1 | 16
+| 16 | 1 | 2 | 1 | 16 | 1 | 16
+| 16 | 1 | 4 | 1 | 16 | 1 | 16
+| 16 | 1 | 4 | 8 | 16 | 1 | 16 ^footnote:maxpairs[Maximum: M×S × 16 = VLEN (K_eff = block_size)]
+| 16 | 2 | 4 | 1 | 8  | 1 | 8
+| 16 | 2 | 4 | 8 | 8  | 2 | 16 ^footnote:sgt1[S > 1: K_eff (64) exceeds block_size (32)]
+| 32 | 1 | 1 | 1 | 8  | 1 | 8
+| 32 | 1 | 2 | 1 | 8  | 1 | 8
+| 32 | 2 | 1 | 1 | 4  | 1 | 4
+| 64 | 1 | 1 | 1 | 4  | 1 | 4
 |===
 
-The total storage required is 2 × M × 8 = 16 × VLEN ÷ (SEW × λ) bits.
-For every legal (SEW, λ) combination — where MUL_C = VLEN ÷ (SEW × λ²)
-must be in \{1, 2, 4, 8, 16} — this quantity is at most VLEN, so the
-scale factors always fit within a single vector register.
+Elements in `v0` beyond index M × S − 1 are ignored by the instruction
+and need not be initialised.
 
-.Scale capacity for VLEN = 256
-[cols="1,1,1,1,1", options="header"]
+===== Block size selection
+
+The `bs` field in `vtype` (see <<integrated-matrix-bs>>) selects the
+microscaling block size.  When `bs=0`, the block size is 32 elements
+(standard OCP MX); when `bs=1`, the block size is 16 elements.
+
+Block size 16 doubles the number of scales per row/column (S is doubled),
+which doubles the M × S capacity requirement.  To guarantee that the
+paired scales fit within `v0`, the following constraint is imposed when
+`bs=1` and `vm=0`:
+
+    W × LMUL ≤ SEW
+
+If this constraint is violated, the instruction raises an
+illegal-instruction exception.
+
+.Maximum LMUL for block_size = 16
+[cols="2,2,1,1,1", options="header"]
 |===
-| SEW | λ | M = N | Scales (2M) | Bits used / VLEN
+| Input format | Instruction | W | SEW | Max LMUL
 
-| 8  | 2 | 16 | 32 | 256 / 256 (100%)
-| 16 | 1 | 16 | 32 | 256 / 256 (100%)
-| 16 | 2 | 8  | 16 | 128 / 256 (50%)
-| 16 | 4 | 4  | 8  | 64 / 256 (25%)
-| 32 | 1 | 8  | 16 | 128 / 256 (50%)
-| 32 | 2 | 4  | 8  | 64 / 256 (25%)
-| 64 | 1 | 4  | 8  | 64 / 256 (25%)
+| FP4 → FP16/BF16 | vfqwmmacc | 4 | 16 | 4
+| FP4 → OFP8       | vfwmmacc  | 2 | 8  | 4
+| All others        | —         | — | —  | 8 (no restriction)
 |===
-
-Bytes in `v0` beyond position 2M − 1 are ignored by the instruction and
-need not be initialised.
 
 ===== Applicability
 
@@ -567,35 +637,58 @@ For integer multiply-accumulate instructions (`vmmacc.vv`, `vwmmacc.vv`,
 `vqwmmacc.vv`), `vm=0` remains _reserved_ and raises an illegal-instruction
 exception.
 
+Microscaling requires SEW × λ ≥ 16 to ensure that the paired 16-bit scale
+elements fit within `v0`.  Configurations where SEW × λ < 16 with `vm=0`
+raise an illegal-instruction exception.
+
 Microscaling is particularly useful with narrow input formats (OFP4, OFP8)
 where the limited dynamic range of the per-element format is compensated by
-the shared E8M0 exponent, enabling high-throughput inference on
+the block-level E8M0 exponent, enabling high-throughput inference on
 microscaling-quantised models.
 
 ===== Microscaling subextensions
 
 Each microscaling subextension enables the `vm=0` / `v0.scale` encoding for
-a specific (input format, accumulator format) combination.  A microscaling
-subextension implies its corresponding base subextension: for example,
-Zvvfmmmxfp4h implies Zvvfmmofp4h, which provides the underlying OFP4→FP16
-instruction support.  Only narrow input formats (OFP4, OFP8) define
-microscaling variants, as wider formats (IEEE binary16 and above) have
-sufficient exponent range to not require a shared scale.
+a specific (input format, accumulator format, block size) combination.
+A microscaling subextension implies its corresponding base subextension:
+for example, Zvvfmmmxfp4h implies Zvvfmmofp4h, which provides the
+underlying OFP4→FP16 instruction support.  Only narrow input formats
+(OFP4, OFP8) define microscaling variants, as wider formats (IEEE binary16
+and above) have sufficient exponent range to not require a shared scale.
+
+The `Zvvfmmmx*` subextensions provide block_size=32 (standard OCP MX).
+The `Zvvfmmnx*` subextensions provide block_size=16, enabling the `bs=1`
+encoding; each `Zvvfmmnx*` subextension implies the corresponding
+`Zvvfmmmx*` subextension (and transitively the base subextension).
+Implementations that support `Zvvfmmnx*` must also support `Zvvfmmmx*`
+for the same format combination.
 
 [#tbl-mx-subextensions]
 .Microscaling subextensions
-[cols="1,1,3,3", options="header"]
+[cols="1,1,1,3,3", options="header"]
 |===
-|Extension        | Implies          | Multiplicand Types                | Accumulator Type
+|Extension        | BS | Implies          | Multiplicand Types                | Accumulator Type
 
-|Zvvfmmmxfp4ofp8 ^| Zvvfmmofp4opf8  | MXFP4 (E8M0-scaled OFP4), MXFP4  | OFP8
-|Zvvfmmmxfp4h    ^| Zvvfmmofp4h     | MXFP4, MXFP4                     | IEEE binary16
-|Zvvfmmmxfp4bf16 ^| Zvvfmmofp4bf16  | MXFP4, MXFP4                     | BFloat16
-|Zvvfmmmxfp8     ^| Zvvfmmofp8      | MXFP8 (E8M0-scaled OFP8), MXFP8  | OFP8
-|Zvvfmmmxfp8h    ^| Zvvfmmofp8h     | MXFP8, MXFP8                     | IEEE binary16
-|Zvvfmmmxfp8bf16 ^| Zvvfmmofp8bf16  | MXFP8, MXFP8                     | BFloat16
-|Zvvfmmmxfp8w    ^| Zvvfmmofp8w     | MXFP8, MXFP8                     | IEEE binary32
+|Zvvfmmmxfp4ofp8 ^| 32 ^| Zvvfmmofp4opf8  | MXFP4 (E8M0-scaled OFP4), MXFP4  | OFP8
+|Zvvfmmmxfp4h    ^| 32 ^| Zvvfmmofp4h     | MXFP4, MXFP4                     | IEEE binary16
+|Zvvfmmmxfp4bf16 ^| 32 ^| Zvvfmmofp4bf16  | MXFP4, MXFP4                     | BFloat16
+|Zvvfmmmxfp8     ^| 32 ^| Zvvfmmofp8      | MXFP8 (E8M0-scaled OFP8), MXFP8  | OFP8
+|Zvvfmmmxfp8h    ^| 32 ^| Zvvfmmofp8h     | MXFP8, MXFP8                     | IEEE binary16
+|Zvvfmmmxfp8bf16 ^| 32 ^| Zvvfmmofp8bf16  | MXFP8, MXFP8                     | BFloat16
+|Zvvfmmmxfp8w    ^| 32 ^| Zvvfmmofp8w     | MXFP8, MXFP8                     | IEEE binary32
+|Zvvfmmnxfp4ofp8 ^| 16 ^| Zvvfmmmxfp4ofp8 | MXFP4 (E8M0-scaled OFP4), MXFP4  | OFP8
+|Zvvfmmnxfp4h    ^| 16 ^| Zvvfmmmxfp4h    | MXFP4, MXFP4                     | IEEE binary16
+|Zvvfmmnxfp4bf16 ^| 16 ^| Zvvfmmmxfp4bf16 | MXFP4, MXFP4                     | BFloat16
+|Zvvfmmnxfp8     ^| 16 ^| Zvvfmmmxfp8     | MXFP8 (E8M0-scaled OFP8), MXFP8  | OFP8
+|Zvvfmmnxfp8h    ^| 16 ^| Zvvfmmmxfp8h    | MXFP8, MXFP8                     | IEEE binary16
+|Zvvfmmnxfp8bf16 ^| 16 ^| Zvvfmmmxfp8bf16 | MXFP8, MXFP8                     | BFloat16
+|Zvvfmmnxfp8w    ^| 16 ^| Zvvfmmmxfp8w    | MXFP8, MXFP8                     | IEEE binary32
 |===
+
+NOTE: The `Zvvfmmnx*` (BS=16) subextensions for FP4→FP16/BF16
+(`vfqwmmacc`, W=4) and FP4→OFP8 (`vfwmmacc`, W=2) restrict LMUL to at
+most 4, as the doubled scale count requires W × LMUL ≤ SEW to fit within
+`v0`.
 
 [#zvvmtls,reftext=Load/store instructions for matrix tiles]
 === Zvvmtls: Extension for loading and storing vector-registers interpreted as 2D matrix-tiles
@@ -1279,6 +1372,9 @@ function mat_C_idx(i : int, j : int, M : int,
 // fp_defaultNaN(EEW : int, fmt : fp_fmt) -> bits(EEW)
 //   Return the default (canonical) NaN bit pattern for the given format.
 
+// fp_zero(EEW : int, fmt : fp_fmt) -> bits(EEW)
+//   Return the positive zero bit pattern for the given format.
+
 // e8m0_to_fp(scale : bits(8), EEW : int, fmt : fp_fmt) -> bits(EEW)
 //   Convert an 8-bit E8M0 exponent-only value (bias 127) to the corresponding
 //   power-of-two in the target format.  E8M0 0xFF maps to NaN.
@@ -1322,10 +1418,9 @@ The floating-point format for A and B elements is selected by `altfmt_A` and `al
 (both must be equal); the C accumulator format is selected by `altfmt`.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
 +
-When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
-one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
-Each output element is scaled by the product of the corresponding row and column
-scales before accumulation.
+When `vm=0` (`v0.scale`), the register `v0` supplies paired E8M0 block-scale
+factors for microscaling (see <<integrated-matrix-microscaling>>).  The `bs`
+field in `vtype` selects the block size (32 or 16 elements).
 
 Exceptions::
 _Illegal Instruction_ is raised if any of the following conditions is not satisfied:
@@ -1334,6 +1429,8 @@ _Illegal Instruction_ is raised if any of the following conditions is not satisf
 * MUL_C (= VLEN ÷ (SEW × λ²)) is not in \{1, 2, 4, 8, 16}.
 * _vs1_ or _vs2_ is not aligned for LMUL.
 * _vd_ is not aligned for MUL_C.
+* When `vm=0`: SEW × λ < 16.
+* When `vm=0` and `bs=1`: W × LMUL > SEW.
 
 Operation::
 [source,sail]
@@ -1358,6 +1455,15 @@ let MUL_C : int = M / lambda;
 if unsigned(vl) % K_eff != 0 then return Illegal_Instruction();
 if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 
+// Block size and scale count
+let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
+let S : int = (K_eff + block_size - 1) / block_size;
+
+// BS=16 LMUL restriction: W × LMUL ≤ SEW
+if vm == 0 & vtype[bs] == 0b1 & (1 * LMUL > EEW) then return Illegal_Instruction();
+// Microscaling legality: SEW × λ ≥ 16
+if vm == 0 & (EEW * lambda < 16) then return Illegal_Instruction();
+
 let fmt_A : fp_fmt       = fp_format_of(EEW, vtype[altfmt_A]);
 let fmt_B : fp_fmt       = fp_format_of(EEW, vtype[altfmt_B]);
 let fmt_C : fp_fmt       = fp_format_of(EEW, vtype[altfmt]);
@@ -1367,34 +1473,54 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int       = mat_C_idx(i, j, M, MUL_C, lambda, epr);
     var acc : bits(EEW)    = read_single_element(EEW, c_flat, vd);
+    var nan_out : bool = false;
 
-    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
-    let scale_A : bits(EEW) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW, fmt_C)
-      else fp_one(EEW, fmt_C);
-    let scale_B : bits(EEW) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW, fmt_C)
-      else fp_one(EEW, fmt_C);
-    let scale : bits(EEW) = fp_mul(scale_A, scale_B, EEW, fmt_C, rm);
+    foreach (s from 0 to (S - 1)) {
+      // Read paired 16-bit scale element from v0
+      let pair_A : bits(16) =
+        if vm == 0
+        then read_single_element(16, i * S + s, zvreg(0))
+        else 0x0000;
+      let pair_B : bits(16) =
+        if vm == 0
+        then read_single_element(16, j * S + s, zvreg(0))
+        else 0x0000;
 
-    // Check for NaN scale (E8M0 0xFF): force output to default NaN
-    if fp_is_NaN(scale, EEW, fmt_C) then {
-      write_single_element(EEW, c_flat, vd, fp_defaultNaN(EEW, fmt_C));
-      continue
+      let sA : bits(EEW) =
+        if vm == 0
+        then e8m0_to_fp(pair_A[7..0], EEW, fmt_C)
+        else fp_one(EEW, fmt_C);
+      let sB : bits(EEW) =
+        if vm == 0
+        then e8m0_to_fp(pair_B[15..8], EEW, fmt_C)
+        else fp_one(EEW, fmt_C);
+      let blk_scale : bits(EEW) = fp_mul(sA, sB, EEW, fmt_C, rm);
+
+      // NaN scale → NaN output
+      if fp_is_NaN(blk_scale, EEW, fmt_C) then {
+        nan_out = true; break
+      };
+
+      // Accumulate within block
+      let k_lo : int = s * block_size;
+      let k_hi : int = min((s + 1) * block_size, K_eff) - 1;
+      var blk_acc : bits(EEW) = fp_zero(EEW, fmt_C);
+      foreach (k from k_lo to k_hi) {
+        let a_flat : int       = mat_A_idx(i, k, K_eff, LMUL, lambda, epr);
+        let b_flat : int       = mat_B_idx(k, j, K_eff, LMUL, lambda, epr);
+        let a_bits : bits(EEW) = read_single_element(EEW, a_flat, vs1);
+        let b_bits : bits(EEW) = read_single_element(EEW, b_flat, vs2);
+        let prod   : bits(EEW) = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW, fmt_C, rm);
+        blk_acc = fp_add(blk_acc, prod, EEW, fmt_C, rm)
+      };
+      acc = fp_add(acc, fp_mul(blk_scale, blk_acc, EEW, fmt_C, rm),
+                   EEW, fmt_C, rm)
     };
 
-    foreach (k from 0 to (K_eff - 1)) {
-      let a_flat : int       = mat_A_idx(i, k, K_eff, LMUL, lambda, epr);
-      let b_flat : int       = mat_B_idx(k, j, K_eff, LMUL, lambda, epr);
-      let a_bits : bits(EEW) = read_single_element(EEW, a_flat, vs1);
-      let b_bits : bits(EEW) = read_single_element(EEW, b_flat, vs2);
-      let prod   : bits(EEW) = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW, fmt_C, rm);
-      acc = fp_add(acc, prod, EEW, fmt_C, rm)
-    };
-    acc = fp_mul(scale, acc, EEW, fmt_C, rm);
-    write_single_element(EEW, c_flat, vd, acc)
+    if nan_out then
+      write_single_element(EEW, c_flat, vd, fp_defaultNaN(EEW, fmt_C))
+    else
+      write_single_element(EEW, c_flat, vd, acc)
   }
 };
 RETIRE_SUCCESS
@@ -1453,10 +1579,9 @@ The floating-point format for A and B elements is selected by `altfmt_A` and `al
 by `altfmt`, interpreted for width SEW.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
 +
-When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
-one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
-Each output element is scaled by the product of the corresponding row and column
-scales before accumulation.
+When `vm=0` (`v0.scale`), the register `v0` supplies paired E8M0 block-scale
+factors for microscaling (see <<integrated-matrix-microscaling>>).  The `bs`
+field in `vtype` selects the block size (32 or 16 elements).
 
 Operation::
 [source,sail]
@@ -1484,6 +1609,15 @@ let MUL_C : int = M / lambda;
 if unsigned(vl) % K_eff != 0 then return Illegal_Instruction();
 if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 
+// Block size and scale count
+let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
+let S : int = (K_eff + block_size - 1) / block_size;
+
+// BS=16 LMUL restriction: W × LMUL ≤ SEW
+if vm == 0 & vtype[bs] == 0b1 & (4 * LMUL > EEW_C) then return Illegal_Instruction();
+// Microscaling legality: SEW × λ ≥ 16
+if vm == 0 & (EEW_C * lambda < 16) then return Illegal_Instruction();
+
 let fmt_A : fp_fmt        = fp_format_of(EEW_A, vtype[altfmt_A]);
 let fmt_B : fp_fmt        = fp_format_of(EEW_A, vtype[altfmt_B]);
 let fmt_C : fp_fmt        = fp_format_of(EEW_C, vtype[altfmt]);
@@ -1493,34 +1627,54 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int          = mat_C_idx(i, j, M, MUL_C, lambda, epr_C);
     var acc : bits(EEW_C)     = read_single_element(EEW_C, c_flat, vd);
+    var nan_out : bool = false;
 
-    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
-    let scale_A : bits(EEW_C) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW_C, fmt_C)
-      else fp_one(EEW_C, fmt_C);
-    let scale_B : bits(EEW_C) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW_C, fmt_C)
-      else fp_one(EEW_C, fmt_C);
-    let scale : bits(EEW_C) = fp_mul(scale_A, scale_B, EEW_C, fmt_C, rm);
+    foreach (s from 0 to (S - 1)) {
+      // Read paired 16-bit scale element from v0
+      let pair_A : bits(16) =
+        if vm == 0
+        then read_single_element(16, i * S + s, zvreg(0))
+        else 0x0000;
+      let pair_B : bits(16) =
+        if vm == 0
+        then read_single_element(16, j * S + s, zvreg(0))
+        else 0x0000;
 
-    // Check for NaN scale (E8M0 0xFF): force output to default NaN
-    if fp_is_NaN(scale, EEW_C, fmt_C) then {
-      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C));
-      continue
+      let sA : bits(EEW_C) =
+        if vm == 0
+        then e8m0_to_fp(pair_A[7..0], EEW_C, fmt_C)
+        else fp_one(EEW_C, fmt_C);
+      let sB : bits(EEW_C) =
+        if vm == 0
+        then e8m0_to_fp(pair_B[15..8], EEW_C, fmt_C)
+        else fp_one(EEW_C, fmt_C);
+      let blk_scale : bits(EEW_C) = fp_mul(sA, sB, EEW_C, fmt_C, rm);
+
+      // NaN scale → NaN output
+      if fp_is_NaN(blk_scale, EEW_C, fmt_C) then {
+        nan_out = true; break
+      };
+
+      // Accumulate within block
+      let k_lo : int = s * block_size;
+      let k_hi : int = min((s + 1) * block_size, K_eff) - 1;
+      var blk_acc : bits(EEW_C) = fp_zero(EEW_C, fmt_C);
+      foreach (k from k_lo to k_hi) {
+        let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
+        let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
+        let a_bits : bits(EEW_A)  = read_single_element(EEW_A, a_flat, vs1);
+        let b_bits : bits(EEW_A)  = read_single_element(EEW_A, b_flat, vs2);
+        let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
+        blk_acc = fp_add(blk_acc, prod, EEW_C, fmt_C, rm)
+      };
+      acc = fp_add(acc, fp_mul(blk_scale, blk_acc, EEW_C, fmt_C, rm),
+                   EEW_C, fmt_C, rm)
     };
 
-    foreach (k from 0 to (K_eff - 1)) {
-      let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
-      let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
-      let a_bits : bits(EEW_A)  = read_single_element(EEW_A, a_flat, vs1);
-      let b_bits : bits(EEW_A)  = read_single_element(EEW_A, b_flat, vs2);
-      let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
-      acc = fp_add(acc, prod, EEW_C, fmt_C, rm)
-    };
-    acc = fp_mul(scale, acc, EEW_C, fmt_C, rm);
-    write_single_element(EEW_C, c_flat, vd, acc)
+    if nan_out then
+      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C))
+    else
+      write_single_element(EEW_C, c_flat, vd, acc)
   }
 };
 RETIRE_SUCCESS
@@ -1579,10 +1733,9 @@ The floating-point format for A and B elements is selected by `altfmt_A` and `al
 by `altfmt`, interpreted for width SEW.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
 +
-When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
-one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
-Each output element is scaled by the product of the corresponding row and column
-scales before accumulation.
+When `vm=0` (`v0.scale`), the register `v0` supplies paired E8M0 block-scale
+factors for microscaling (see <<integrated-matrix-microscaling>>).  The `bs`
+field in `vtype` selects the block size (32 or 16 elements).
 
 Operation::
 [source,sail]
@@ -1610,6 +1763,15 @@ let MUL_C : int = M / lambda;
 if unsigned(vl) % K_eff != 0 then return Illegal_Instruction();
 if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 
+// Block size and scale count
+let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
+let S : int = (K_eff + block_size - 1) / block_size;
+
+// BS=16 LMUL restriction: W × LMUL ≤ SEW
+if vm == 0 & vtype[bs] == 0b1 & (2 * LMUL > EEW_C) then return Illegal_Instruction();
+// Microscaling legality: SEW × λ ≥ 16
+if vm == 0 & (EEW_C * lambda < 16) then return Illegal_Instruction();
+
 let fmt_A : fp_fmt        = fp_format_of(EEW_A, vtype[altfmt_A]);
 let fmt_B : fp_fmt        = fp_format_of(EEW_A, vtype[altfmt_B]);
 let fmt_C : fp_fmt        = fp_format_of(EEW_C, vtype[altfmt]);
@@ -1619,34 +1781,54 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int          = mat_C_idx(i, j, M, MUL_C, lambda, epr_C);
     var acc : bits(EEW_C)     = read_single_element(EEW_C, c_flat, vd);
+    var nan_out : bool = false;
 
-    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
-    let scale_A : bits(EEW_C) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW_C, fmt_C)
-      else fp_one(EEW_C, fmt_C);
-    let scale_B : bits(EEW_C) =
-      if vm == 0
-      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW_C, fmt_C)
-      else fp_one(EEW_C, fmt_C);
-    let scale : bits(EEW_C) = fp_mul(scale_A, scale_B, EEW_C, fmt_C, rm);
+    foreach (s from 0 to (S - 1)) {
+      // Read paired 16-bit scale element from v0
+      let pair_A : bits(16) =
+        if vm == 0
+        then read_single_element(16, i * S + s, zvreg(0))
+        else 0x0000;
+      let pair_B : bits(16) =
+        if vm == 0
+        then read_single_element(16, j * S + s, zvreg(0))
+        else 0x0000;
 
-    // Check for NaN scale (E8M0 0xFF): force output to default NaN
-    if fp_is_NaN(scale, EEW_C, fmt_C) then {
-      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C));
-      continue
+      let sA : bits(EEW_C) =
+        if vm == 0
+        then e8m0_to_fp(pair_A[7..0], EEW_C, fmt_C)
+        else fp_one(EEW_C, fmt_C);
+      let sB : bits(EEW_C) =
+        if vm == 0
+        then e8m0_to_fp(pair_B[15..8], EEW_C, fmt_C)
+        else fp_one(EEW_C, fmt_C);
+      let blk_scale : bits(EEW_C) = fp_mul(sA, sB, EEW_C, fmt_C, rm);
+
+      // NaN scale → NaN output
+      if fp_is_NaN(blk_scale, EEW_C, fmt_C) then {
+        nan_out = true; break
+      };
+
+      // Accumulate within block
+      let k_lo : int = s * block_size;
+      let k_hi : int = min((s + 1) * block_size, K_eff) - 1;
+      var blk_acc : bits(EEW_C) = fp_zero(EEW_C, fmt_C);
+      foreach (k from k_lo to k_hi) {
+        let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
+        let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
+        let a_bits : bits(EEW_A)  = read_single_element(EEW_A, a_flat, vs1);
+        let b_bits : bits(EEW_A)  = read_single_element(EEW_A, b_flat, vs2);
+        let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
+        blk_acc = fp_add(blk_acc, prod, EEW_C, fmt_C, rm)
+      };
+      acc = fp_add(acc, fp_mul(blk_scale, blk_acc, EEW_C, fmt_C, rm),
+                   EEW_C, fmt_C, rm)
     };
 
-    foreach (k from 0 to (K_eff - 1)) {
-      let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
-      let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
-      let a_bits : bits(EEW_A)  = read_single_element(EEW_A, a_flat, vs1);
-      let b_bits : bits(EEW_A)  = read_single_element(EEW_A, b_flat, vs2);
-      let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
-      acc = fp_add(acc, prod, EEW_C, fmt_C, rm)
-    };
-    acc = fp_mul(scale, acc, EEW_C, fmt_C, rm);
-    write_single_element(EEW_C, c_flat, vd, acc)
+    if nan_out then
+      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C))
+    else
+      write_single_element(EEW_C, c_flat, vd, acc)
   }
 };
 RETIRE_SUCCESS
