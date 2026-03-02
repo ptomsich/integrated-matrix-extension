@@ -79,6 +79,143 @@ Microscaling subextensions that add E8M0-scaled variants of the narrow
 input formats (OFP4, OFP8) are listed separately in
 <<tbl-mx-subextensions>>.
 
+==== Encoding map
+
+The following tables enumerate every (instruction, SEW, altfmt) encoding
+point and map it to its input and output data types and the governing
+subextension.  Entries marked _reserved_ raise an illegal-instruction
+exception.
+
+===== Floating-point encoding map
+
+For all floating-point multiply-accumulate instructions, `altfmt_A` must
+equal `altfmt_B`; encodings where `altfmt_A ≠ altfmt_B` are _reserved_ and
+are not shown below.
+
+[#tbl-fp-encoding-map]
+.Floating-point multiply-accumulate encoding map
+[cols="2,1,1,1,2,1,2,1,2,2,2", options="header"]
+|===
+| Instruction | SEW | EEW | altfmt_A | Input A | altfmt_B | Input B | altfmt | C Type | Subextension | MX Subext. (vm=0)
+
+11+^e| *vfmmacc.vv (W=1)*
+
+| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8
+| vfmmacc  | 8  | 8  | 0 | E4M3  | 0 | E4M3  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8
+| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 0 | E4M3  | Zvvfmmofp8     | Zvvfmmmxfp8
+| vfmmacc  | 8  | 8  | 1 | E5M2  | 1 | E5M2  | 1 | E5M2  | Zvvfmmofp8     | Zvvfmmmxfp8
+| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP16  | Zvvfmmh        | —
+| vfmmacc  | 16 | 16 | 0 | FP16  | 0 | FP16  | 1 | BF16  | _reserved_     | —
+| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP16  | _reserved_     | —
+| vfmmacc  | 16 | 16 | 1 | BF16  | 1 | BF16  | 1 | BF16  | Zvvfmmbf16     | —
+| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 0 | FP32  | Zvvfmmf        | —
+| vfmmacc  | 32 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —
+| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 0 | FP64  | Zvvfmmd        | —
+| vfmmacc  | 64 | 64 | × | FP64  | × | FP64  | 1 | —     | _reserved_     | —
+
+11+^e| *vfwmmacc.vv (W=2)*
+
+| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
+| vfwmmacc | 8  | 4  | 0 | E2M1  | 0 | E2M1  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
+| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 0 | E4M3  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
+| vfwmmacc | 8  | 4  | 1 | E3M0  | 1 | E3M0  | 1 | E5M2  | Zvvfmmofp4opf8 | Zvvfmmmxfp4ofp8
+| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h
+| vfwmmacc | 16 | 8  | 0 | E4M3  | 0 | E4M3  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16
+| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 0 | FP16  | Zvvfmmofp8h    | Zvvfmmmxfp8h
+| vfwmmacc | 16 | 8  | 1 | E5M2  | 1 | E5M2  | 1 | BF16  | Zvvfmmofp8bf16 | Zvvfmmmxfp8bf16
+| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 0 | FP32  | Zvvfmmhf       | —
+| vfwmmacc | 32 | 16 | 0 | FP16  | 0 | FP16  | 1 | —     | _reserved_     | —
+| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 0 | FP32  | Zvvfmmbf16f    | —
+| vfwmmacc | 32 | 16 | 1 | BF16  | 1 | BF16  | 1 | —     | _reserved_     | —
+| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 0 | FP64  | Zvvfmmfd       | —
+| vfwmmacc | 64 | 32 | × | FP32  | × | FP32  | 1 | —     | _reserved_     | —
+
+11+^e| *vfqwmmacc.vv (W=4)*
+
+| vfqwmmacc | 8  | 2 | × | —    | × | —     | × | —     | _reserved_      | —
+| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h
+| vfqwmmacc | 16 | 4  | 0 | E2M1 | 0 | E2M1  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16
+| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 0 | FP16  | Zvvfmmofp4h    | Zvvfmmmxfp4h
+| vfqwmmacc | 16 | 4  | 1 | E3M0 | 1 | E3M0  | 1 | BF16  | Zvvfmmofp4bf16 | Zvvfmmmxfp4bf16
+| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w
+| vfqwmmacc | 32 | 8  | 0 | E4M3 | 0 | E4M3  | 1 | —     | _reserved_     | —
+| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 0 | FP32  | Zvvfmmofp8w    | Zvvfmmmxfp8w
+| vfqwmmacc | 32 | 8  | 1 | E5M2 | 1 | E5M2  | 1 | —     | _reserved_     | —
+| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 0 | FP64  | Zvvfmmhd       | —
+| vfqwmmacc | 64 | 16 | 0 | FP16 | 0 | FP16  | 1 | —     | _reserved_     | —
+| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 0 | FP64  | Zvvfmmbf16d    | —
+| vfqwmmacc | 64 | 16 | 1 | BF16 | 1 | BF16  | 1 | —     | _reserved_     | —
+|===
+
+===== Integer encoding map
+
+The `altfmt_A` and `altfmt_B` fields independently select signed (0) or
+unsigned (1) interpretation of the corresponding input operand.  All four
+sign combinations are valid under the same subextension.  The accumulator C
+is always signed; `altfmt` is not used by integer instructions.  The `vm`
+bit must be 1; `vm=0` is _reserved_.
+
+[#tbl-int-encoding-map]
+.Integer multiply-accumulate encoding map
+[cols="2,1,1,1,2,1,2,2,2", options="header"]
+|===
+| Instruction | SEW | EEW | altfmt_A | Input A | altfmt_B | Input B | C Type | Subextension
+
+9+^e| *vmmacc.vv (W=1)*
+
+| vmmacc    | 8  | 8  | 0 | Int8   | 0 | Int8   | Int8  | Zvvmmb
+| vmmacc    | 8  | 8  | 0 | Int8   | 1 | UInt8  | Int8  | Zvvmmb
+| vmmacc    | 8  | 8  | 1 | UInt8  | 0 | Int8   | Int8  | Zvvmmb
+| vmmacc    | 8  | 8  | 1 | UInt8  | 1 | UInt8  | Int8  | Zvvmmb
+| vmmacc    | 16 | 16 | 0 | Int16  | 0 | Int16  | Int16 | Zvvmmh
+| vmmacc    | 16 | 16 | 0 | Int16  | 1 | UInt16 | Int16 | Zvvmmh
+| vmmacc    | 16 | 16 | 1 | UInt16 | 0 | Int16  | Int16 | Zvvmmh
+| vmmacc    | 16 | 16 | 1 | UInt16 | 1 | UInt16 | Int16 | Zvvmmh
+| vmmacc    | 32 | 32 | 0 | Int32  | 0 | Int32  | Int32 | Zvvmmw
+| vmmacc    | 32 | 32 | 0 | Int32  | 1 | UInt32 | Int32 | Zvvmmw
+| vmmacc    | 32 | 32 | 1 | UInt32 | 0 | Int32  | Int32 | Zvvmmw
+| vmmacc    | 32 | 32 | 1 | UInt32 | 1 | UInt32 | Int32 | Zvvmmw
+| vmmacc    | 64 | 64 | 0 | Int64  | 0 | Int64  | Int64 | Zvvmmd
+| vmmacc    | 64 | 64 | 0 | Int64  | 1 | UInt64 | Int64 | Zvvmmd
+| vmmacc    | 64 | 64 | 1 | UInt64 | 0 | Int64  | Int64 | Zvvmmd
+| vmmacc    | 64 | 64 | 1 | UInt64 | 1 | UInt64 | Int64 | Zvvmmd
+
+9+^e| *vwmmacc.vv (W=2)*
+
+| vwmmacc   | 8  | 4  | 0 | Int4   | 0 | Int4   | Int8  | Zvvmmi4b
+| vwmmacc   | 8  | 4  | 0 | Int4   | 1 | UInt4  | Int8  | Zvvmmi4b
+| vwmmacc   | 8  | 4  | 1 | UInt4  | 0 | Int4   | Int8  | Zvvmmi4b
+| vwmmacc   | 8  | 4  | 1 | UInt4  | 1 | UInt4  | Int8  | Zvvmmi4b
+| vwmmacc   | 16 | 8  | 0 | Int8   | 0 | Int8   | Int16 | Zvvmmbh
+| vwmmacc   | 16 | 8  | 0 | Int8   | 1 | UInt8  | Int16 | Zvvmmbh
+| vwmmacc   | 16 | 8  | 1 | UInt8  | 0 | Int8   | Int16 | Zvvmmbh
+| vwmmacc   | 16 | 8  | 1 | UInt8  | 1 | UInt8  | Int16 | Zvvmmbh
+| vwmmacc   | 32 | 16 | 0 | Int16  | 0 | Int16  | Int32 | Zvvmmhw
+| vwmmacc   | 32 | 16 | 0 | Int16  | 1 | UInt16 | Int32 | Zvvmmhw
+| vwmmacc   | 32 | 16 | 1 | UInt16 | 0 | Int16  | Int32 | Zvvmmhw
+| vwmmacc   | 32 | 16 | 1 | UInt16 | 1 | UInt16 | Int32 | Zvvmmhw
+| vwmmacc   | 64 | 32 | 0 | Int32  | 0 | Int32  | Int64 | Zvvmmwd
+| vwmmacc   | 64 | 32 | 0 | Int32  | 1 | UInt32 | Int64 | Zvvmmwd
+| vwmmacc   | 64 | 32 | 1 | UInt32 | 0 | Int32  | Int64 | Zvvmmwd
+| vwmmacc   | 64 | 32 | 1 | UInt32 | 1 | UInt32 | Int64 | Zvvmmwd
+
+9+^e| *vqwmmacc.vv (W=4)*
+
+| vqwmmacc  | 8  | 2  | × | —     | × | —      | —     | _reserved_
+| vqwmmacc  | 16 | 4  | 0 | Int4   | 0 | Int4   | Int16 | Zvvmmi4h
+| vqwmmacc  | 16 | 4  | 0 | Int4   | 1 | UInt4  | Int16 | Zvvmmi4h
+| vqwmmacc  | 16 | 4  | 1 | UInt4  | 0 | Int4   | Int16 | Zvvmmi4h
+| vqwmmacc  | 16 | 4  | 1 | UInt4  | 1 | UInt4  | Int16 | Zvvmmi4h
+| vqwmmacc  | 32 | 8  | 0 | Int8   | 0 | Int8   | Int32 | Zvvmmbw
+| vqwmmacc  | 32 | 8  | 0 | Int8   | 1 | UInt8  | Int32 | Zvvmmbw
+| vqwmmacc  | 32 | 8  | 1 | UInt8  | 0 | Int8   | Int32 | Zvvmmbw
+| vqwmmacc  | 32 | 8  | 1 | UInt8  | 1 | UInt8  | Int32 | Zvvmmbw
+| vqwmmacc  | 64 | 16 | 0 | Int16  | 0 | Int16  | Int64 | Zvvmmhd
+| vqwmmacc  | 64 | 16 | 0 | Int16  | 1 | UInt16 | Int64 | Zvvmmhd
+| vqwmmacc  | 64 | 16 | 1 | UInt16 | 0 | Int16  | Int64 | Zvvmmhd
+| vqwmmacc  | 64 | 16 | 1 | UInt16 | 1 | UInt16 | Int64 | Zvvmmhd
+|===
+
 === New fields in the Vector Type (`vtype`) Register
 
 The Integrated Matrix family of extensions defines the following additional fields in the `vtype` CSR:
