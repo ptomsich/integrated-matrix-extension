@@ -646,6 +646,70 @@ where the limited dynamic range of the per-element format is compensated by
 the block-level E8M0 exponent, enabling high-throughput inference on
 microscaling-quantised models.
 
+===== Constructing paired scales from separate arrays
+[NOTE]
+====
+This section is _informative_ (non-normative).
+
+In typical deployment, E8M0 scales for A and B reside in separate memory
+regions and are combined into the paired 16-bit layout required by `v0`
+on demand.  The following sequences construct the paired layout from
+`M × S` bytes of `scale_A` (at address `a0`) and `M × S` bytes of
+`scale_B` (at address `a1`), with `M × S` in `a2`.
+
+*Option 1 — Base V (widen + shift + OR):*
+
+[source,asm]
+----
+    vsetvli  t0, a2, e8, mf2, ta, ma
+    vle8.v   v1, (a0)             # load scale_A
+    vle8.v   v2, (a1)             # load scale_B
+    vsetvli  t0, a2, e16, m1, ta, ma
+    vzext.vf2 v0, v1              # zero-extend scale_A to 16-bit
+    vzext.vf2 v3, v2              # zero-extend scale_B to 16-bit
+    vsll.vi  v3, v3, 8            # shift scale_B into upper byte
+    vor.vv   v0, v0, v3           # combine into paired layout
+----
+
+*Option 2 — Zvbb (widening shift + OR):*
+
+[source,asm]
+----
+    vsetvli  t0, a2, e8, mf2, ta, ma
+    vle8.v   v1, (a0)             # load scale_A
+    vle8.v   v2, (a1)             # load scale_B
+    vwsll.vi v0, v2, 8            # widen scale_B to 16-bit, shift to upper byte
+    vsetvli  t0, a2, e16, m1, ta, ma
+    vzext.vf2 v3, v1              # zero-extend scale_A to 16-bit
+    vor.vv   v0, v0, v3           # combine into paired layout
+----
+
+*Option 3 — Zvzip (interleave):*
+
+[source,asm]
+----
+    vsetvli  t0, a2, e8, mf2, ta, ma
+    vle8.v   v1, (a0)             # load scale_A
+    vle8.v   v2, (a1)             # load scale_B
+    vzip.vv  v0, v1, v2           # interleave bytes, EMUL = 2 × mf2 = m1
+----
+
+The `vzip.vv` instruction interleaves at SEW=8: the byte sequence
+`[A[0], B[0], A[1], B[1], ...]` reinterpreted as 16-bit little-endian
+elements yields `element[i] = B[i]<<8 | A[i]`, which is exactly the
+required paired layout.
+
+.Scale-packing instruction count comparison
+[cols="1,1,1,1", options="header"]
+|===
+| Extension | Data instructions | `vsetvli` calls | Total
+
+| Base V | 5 | 2 | 7
+| Zvbb   | 4 | 2 | 6
+| Zvzip  | 3 | 1 | 4
+|===
+====
+
 ===== Microscaling subextensions
 
 Each microscaling subextension enables the `vm=0` / `v0.scale` encoding for
