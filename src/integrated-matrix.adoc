@@ -296,6 +296,12 @@ The accumulator register group has cardinality MUL_C = VLEN ÷ (SEW × λ²), in
 | `vqwmmacc.vv vd, vs1, vs2` | 4 | SEW/4   | SEW
 |===
 
+Vector masking is not supported on matrix multiply-accumulate instructions:
+the `vm` bit in the encoding must be 1.
+For integer multiply-accumulate instructions, `vm=0` is _reserved_.
+For floating-point multiply-accumulate instructions, `vm=0` enables
+microscaling (see <<integrated-matrix-microscaling>>).
+
 [#zvvfmm,reftext=Matrix-multiplication instructions (floating-point)]
 === Zvvfmm: Extension for matrix-multiplication on vector-registers interpreted as 2D floating-point matrix-tiles
 
@@ -329,6 +335,101 @@ The accumulator register group has cardinality MUL_C = VLEN ÷ (SEW × λ²), in
 | `vfwmmacc.vv vd, vs1, vs2`  | 2 | SEW/2   | SEW
 | `vfqwmmacc.vv vd, vs1, vs2` | 4 | SEW/4   | SEW
 |===
+
+As with the integer multiply-accumulate instructions, vector masking is not
+supported.  When `vm=0`, the instruction does not apply a vector mask;
+instead, `v0` supplies per-tile-row and per-tile-column E8M0 scaling factors
+for microscaling operation (see <<integrated-matrix-microscaling>>).
+
+[#integrated-matrix-microscaling]
+==== Microscaling support (`v0.scale`)
+
+Microscaling floating-point formats (as defined by the OCP Microscaling
+Formats specification) represent tensors using narrow per-element values
+(e.g., OFP4 or OFP8) combined with a coarser shared scale factor.
+The Integrated Matrix extensions support microscaling on all floating-point
+multiply-accumulate instructions by encoding `vm=0` in the instruction and
+supplying E8M0 scale factors through `v0`.
+
+The assembly syntax for a microscaled operation appends `v0.scale` as the
+final operand, analogous to `v0.t` for masked operations in the base V
+extension:
+
+    vfmmacc.vv   vd, vs1, vs2, v0.scale
+    vfwmmacc.vv  vd, vs1, vs2, v0.scale
+    vfqwmmacc.vv vd, vs1, vs2, v0.scale
+
+When `vm=0` is not specified (i.e., `vm=1`, the default), no scaling is
+applied and `v0` is not read.
+
+===== Semantics
+
+When microscaling is active, each output element is computed as:
+
+    C[m, n] ← C[m, n] + scale_A[m] × scale_B[n] × Σ_{k} A[m, k] × B[k, n]
+
+where `scale_A[m]` and `scale_B[n]` are power-of-two values decoded from
+8-bit E8M0 fields in `v0`.  The E8M0 format uses an 8-bit biased exponent
+(bias 127) representing values from 2^−127^ to 2^127^; the bit pattern
+0xFF encodes NaN.
+
+The per-row scale for A and the per-column scale for B are applied as exact
+power-of-two multiplications (implemented as exponent additions) and
+therefore introduce no rounding error.  If either `scale_A[m]` or
+`scale_B[n]` is NaN (0xFF), the corresponding output element C[m, n] is set
+to the default NaN regardless of the input element values.
+
+===== Scale layout in `v0`
+
+The register `v0` holds 2 × M E8M0 scale values, where M = N = VLEN ÷
+(SEW × λ) is the tile dimension.  Each scale occupies one byte, packed
+in element order at 8-bit granularity:
+
+[cols="2,3", options="header"]
+|===
+| Byte position in `v0` | Content
+
+| bytes [0, M − 1]
+| E8M0 scales for rows 0 .. M−1 of A (_vs1_)
+
+| bytes [M, 2M − 1]
+| E8M0 scales for columns 0 .. N−1 of B (_vs2_)
+|===
+
+The total storage required is 2 × M × 8 = 16 × VLEN ÷ (SEW × λ) bits.
+For every legal (SEW, λ) combination — where MUL_C = VLEN ÷ (SEW × λ²)
+must be in \{1, 2, 4, 8, 16} — this quantity is at most VLEN, so the
+scale factors always fit within a single vector register.
+
+.Scale capacity for VLEN = 256
+[cols="1,1,1,1,1", options="header"]
+|===
+| SEW | λ | M = N | Scales (2M) | Bits used / VLEN
+
+| 8  | 2 | 16 | 32 | 256 / 256 (100%)
+| 16 | 1 | 16 | 32 | 256 / 256 (100%)
+| 16 | 2 | 8  | 16 | 128 / 256 (50%)
+| 16 | 4 | 4  | 8  | 64 / 256 (25%)
+| 32 | 1 | 8  | 16 | 128 / 256 (50%)
+| 32 | 2 | 4  | 8  | 64 / 256 (25%)
+| 64 | 1 | 4  | 8  | 64 / 256 (25%)
+|===
+
+Bytes in `v0` beyond position 2M − 1 are ignored by the instruction and
+need not be initialised.
+
+===== Applicability
+
+Microscaling via `v0.scale` is supported on floating-point multiply-accumulate
+instructions only (`vfmmacc.vv`, `vfwmmacc.vv`, `vfqwmmacc.vv`).
+For integer multiply-accumulate instructions (`vmmacc.vv`, `vwmmacc.vv`,
+`vqwmmacc.vv`), `vm=0` remains _reserved_ and raises an illegal-instruction
+exception.
+
+Microscaling is particularly useful with narrow input formats (OFP4, OFP8)
+where the limited dynamic range of the per-element format is compensated by
+the shared E8M0 exponent, enabling high-throughput inference on
+microscaling-quantised models.
 
 [#zvvmtls,reftext=Load/store instructions for matrix tiles]
 === Zvvmtls: Extension for loading and storing vector-registers interpreted as 2D matrix-tiles
@@ -997,6 +1098,24 @@ function mat_C_idx(i : int, j : int, M : int,
 //        EEW  : int,       fmt  : fp_fmt,
 //        rm   : rounding_mode) -> bits(EEW)
 //   Add prod to acc, both in format fmt at width EEW, rounded per rm.  Updates fflags.
+
+// fp_mul(a : bits(EEW), b : bits(EEW),
+//        EEW : int,     fmt : fp_fmt,
+//        rm  : rounding_mode) -> bits(EEW)
+//   Multiply a by b, both in format fmt at width EEW, rounded per rm.  Updates fflags.
+
+// fp_one(EEW : int, fmt : fp_fmt) -> bits(EEW)
+//   Return the bit pattern for +1.0 in the given format.
+
+// fp_is_NaN(x : bits(EEW), EEW : int, fmt : fp_fmt) -> bool
+//   Return true if x is a NaN in the given format.
+
+// fp_defaultNaN(EEW : int, fmt : fp_fmt) -> bits(EEW)
+//   Return the default (canonical) NaN bit pattern for the given format.
+
+// e8m0_to_fp(scale : bits(8), EEW : int, fmt : fp_fmt) -> bits(EEW)
+//   Convert an 8-bit E8M0 exponent-only value (bias 127) to the corresponding
+//   power-of-two in the target format.  E8M0 0xFF maps to NaN.
 --
 
 <<<
@@ -1007,7 +1126,8 @@ Synopsis::
 Floating-Point Matrix Multiply-Accumulate
 
 Mnemonic::
-vfmmacc.vv _vd_, _vs1_, _vs2_
+vfmmacc.vv _vd_, _vs1_, _vs2_ +
+vfmmacc.vv _vd_, _vs1_, _vs2_, v0.scale
 
 Encoding::
 [wavedrom, , svg]
@@ -1035,6 +1155,11 @@ VL selects how many columns of B (and C) are updated; VL must be a multiple of K
 The floating-point format for A and B elements is selected by `altfmt_A` and `altfmt_B` in `vtype`
 (both must be equal); the C accumulator format is selected by `altfmt`.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
++
+When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
+one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
+Each output element is scaled by the product of the corresponding row and column
+scales before accumulation.
 
 Exceptions::
 _Illegal Instruction_ is raised if any of the following conditions is not satisfied:
@@ -1076,6 +1201,24 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int       = mat_C_idx(i, j, M, MUL_C, lambda, epr);
     var acc : bits(EEW)    = read_single_element(EEW, c_flat, vd);
+
+    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
+    let scale_A : bits(EEW) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW, fmt_C)
+      else fp_one(EEW, fmt_C);
+    let scale_B : bits(EEW) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW, fmt_C)
+      else fp_one(EEW, fmt_C);
+    let scale : bits(EEW) = fp_mul(scale_A, scale_B, EEW, fmt_C, rm);
+
+    // Check for NaN scale (E8M0 0xFF): force output to default NaN
+    if fp_is_NaN(scale, EEW, fmt_C) then {
+      write_single_element(EEW, c_flat, vd, fp_defaultNaN(EEW, fmt_C));
+      continue
+    };
+
     foreach (k from 0 to (K_eff - 1)) {
       let a_flat : int       = mat_A_idx(i, k, K_eff, LMUL, lambda, epr);
       let b_flat : int       = mat_B_idx(k, j, K_eff, LMUL, lambda, epr);
@@ -1084,6 +1227,7 @@ foreach (j from 0 to (N - 1)) {
       let prod   : bits(EEW) = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW, fmt_C, rm);
       acc = fp_add(acc, prod, EEW, fmt_C, rm)
     };
+    acc = fp_mul(scale, acc, EEW, fmt_C, rm);
     write_single_element(EEW, c_flat, vd, acc)
   }
 };
@@ -1110,7 +1254,8 @@ Synopsis::
 Floating-Point Quad-Widening Matrix Multiply-Accumulate
 
 Mnemonic::
-vfqwmmacc.vv _vd_, _vs1_, _vs2_
+vfqwmmacc.vv _vd_, _vs1_, _vs2_ +
+vfqwmmacc.vv _vd_, _vs1_, _vs2_, v0.scale
 
 Encoding::
 [wavedrom, , svg]
@@ -1141,6 +1286,11 @@ The floating-point format for A and B elements is selected by `altfmt_A` and `al
 (both must be equal), interpreted for input element width SEW÷4; the C format is selected
 by `altfmt`, interpreted for width SEW.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
++
+When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
+one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
+Each output element is scaled by the product of the corresponding row and column
+scales before accumulation.
 
 Operation::
 [source,sail]
@@ -1150,6 +1300,7 @@ let EEW_C    : int = 2 ^ SEW_pow;
 let EEW_A    : int = EEW_C / 4;
 let LMUL_pow : int = get_lmul_pow();
 let LMUL     : int = 2 ^ max(0, LMUL_pow);
+
 let epr_A    : int = vlen / EEW_A;
 let epr_C    : int = vlen / EEW_C;
 
@@ -1176,6 +1327,24 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int          = mat_C_idx(i, j, M, MUL_C, lambda, epr_C);
     var acc : bits(EEW_C)     = read_single_element(EEW_C, c_flat, vd);
+
+    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
+    let scale_A : bits(EEW_C) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW_C, fmt_C)
+      else fp_one(EEW_C, fmt_C);
+    let scale_B : bits(EEW_C) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW_C, fmt_C)
+      else fp_one(EEW_C, fmt_C);
+    let scale : bits(EEW_C) = fp_mul(scale_A, scale_B, EEW_C, fmt_C, rm);
+
+    // Check for NaN scale (E8M0 0xFF): force output to default NaN
+    if fp_is_NaN(scale, EEW_C, fmt_C) then {
+      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C));
+      continue
+    };
+
     foreach (k from 0 to (K_eff - 1)) {
       let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
       let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
@@ -1184,6 +1353,7 @@ foreach (j from 0 to (N - 1)) {
       let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
       acc = fp_add(acc, prod, EEW_C, fmt_C, rm)
     };
+    acc = fp_mul(scale, acc, EEW_C, fmt_C, rm);
     write_single_element(EEW_C, c_flat, vd, acc)
   }
 };
@@ -1210,7 +1380,8 @@ Synopsis::
 Floating-Point Widening Matrix Multiply-Accumulate
 
 Mnemonic::
-vfwmmacc.vv _vd_, _vs1_, _vs2_
+vfwmmacc.vv _vd_, _vs1_, _vs2_ +
+vfwmmacc.vv _vd_, _vs1_, _vs2_, v0.scale
 
 Encoding::
 [wavedrom, , svg]
@@ -1241,6 +1412,11 @@ The floating-point format for A and B elements is selected by `altfmt_A` and `al
 (both must be equal), interpreted for input element width SEW÷2; the C format is selected
 by `altfmt`, interpreted for width SEW.
 All operations use the dynamic rounding mode from `frm`; floating-point exception flags accumulate in `fflags`.
++
+When `vm=0` (`v0.scale`), the register `v0` supplies E8M0 microscaling factors:
+one per row of A and one per column of B (see <<integrated-matrix-microscaling>>).
+Each output element is scaled by the product of the corresponding row and column
+scales before accumulation.
 
 Operation::
 [source,sail]
@@ -1250,6 +1426,7 @@ let EEW_C    : int = 2 ^ SEW_pow;
 let EEW_A    : int = EEW_C / 2;
 let LMUL_pow : int = get_lmul_pow();
 let LMUL     : int = 2 ^ max(0, LMUL_pow);
+
 let epr_A    : int = vlen / EEW_A;
 let epr_C    : int = vlen / EEW_C;
 
@@ -1276,6 +1453,24 @@ foreach (j from 0 to (N - 1)) {
   foreach (i from 0 to (M - 1)) {
     let c_flat : int          = mat_C_idx(i, j, M, MUL_C, lambda, epr_C);
     var acc : bits(EEW_C)     = read_single_element(EEW_C, c_flat, vd);
+
+    // Read E8M0 scales from v0 when vm=0; otherwise scale = 1.0
+    let scale_A : bits(EEW_C) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, i, zvreg(0)), EEW_C, fmt_C)
+      else fp_one(EEW_C, fmt_C);
+    let scale_B : bits(EEW_C) =
+      if vm == 0
+      then e8m0_to_fp(read_single_element(8, M + j, zvreg(0)), EEW_C, fmt_C)
+      else fp_one(EEW_C, fmt_C);
+    let scale : bits(EEW_C) = fp_mul(scale_A, scale_B, EEW_C, fmt_C, rm);
+
+    // Check for NaN scale (E8M0 0xFF): force output to default NaN
+    if fp_is_NaN(scale, EEW_C, fmt_C) then {
+      write_single_element(EEW_C, c_flat, vd, fp_defaultNaN(EEW_C, fmt_C));
+      continue
+    };
+
     foreach (k from 0 to (K_eff - 1)) {
       let a_flat : int          = mat_A_idx(i, k, K_eff, LMUL, lambda, epr_A);
       let b_flat : int          = mat_B_idx(k, j, K_eff, LMUL, lambda, epr_A);
@@ -1284,6 +1479,7 @@ foreach (j from 0 to (N - 1)) {
       let prod   : bits(EEW_C)  = fp_mul_to(a_bits, fmt_A, b_bits, fmt_B, EEW_C, fmt_C, rm);
       acc = fp_add(acc, prod, EEW_C, fmt_C, rm)
     };
+    acc = fp_mul(scale, acc, EEW_C, fmt_C, rm);
     write_single_element(EEW_C, c_flat, vd, acc)
   }
 };
