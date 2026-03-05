@@ -559,49 +559,63 @@ pair:
 * Lower byte [7:0]: `scale_A` — the E8M0 scale for a row of A
 * Upper byte [15:8]: `scale_B` — the E8M0 scale for a column of B
 
-Element index _p_ = _m_ × S + _s_ addresses the scale pair for row (or
-column) _m_ at block _s_, where S = ⌈K_eff / block_size⌉.  Specifically:
+The row stride in `v0` is R = λ × SEW ÷ 16 (in units of 16-bit elements).
+Within each row, S = ⌈K_eff / block_size⌉ elements are active.  Element
+index _p_ = _m_ × R + _s_ addresses the scale pair for row (or column) _m_
+at block _s_.  Specifically:
 
-* `scale_A[m][s]` is the lower byte of the 16-bit element at index (m × S + s)
-* `scale_B[n][s]` is the upper byte of the 16-bit element at index (n × S + s)
+* `scale_A[m][s]` is the lower byte of the 16-bit element at index (m × R + s)
+* `scale_B[n][s]` is the upper byte of the 16-bit element at index (n × R + s)
 
-The total number of 16-bit elements consumed per tile dimension is M × S,
-where M = N = VLEN ÷ (SEW × λ).  The capacity requirement is
-M × S × 16 ≤ VLEN bits.
+The total number of 16-bit elements spanned per tile dimension is M × R,
+where M = N = VLEN ÷ (SEW × λ).  Because M × R = (VLEN ÷ (SEW × λ)) ×
+(λ × SEW ÷ 16) = VLEN ÷ 16, the scale data fills exactly one register
+regardless of configuration.
 
-**Capacity proof** (for block_size = 32):
+**Capacity proof:**
 
-* When K_eff ≥ 32: M × S = (VLEN / (SEW × λ)) × (λ × W × LMUL / 32) =
-  VLEN × W × LMUL / (SEW × 32).  The maximum occurs at (SEW=16, W=4, LMUL=8)
-  or (SEW=8, W=2, LMUL=8), giving M × S = VLEN / 16.  Since each pair is
-  16 bits, the total is M × S × 16 = VLEN.  Fits exactly.
-* When K_eff < 32: S = 1, so M × S = M = VLEN / (SEW × λ).  Because
-  microscaling requires SEW × λ ≥ 16, we have M ≤ VLEN / 16.  Fits.
+M × R = (VLEN ÷ (SEW × λ)) × (λ × SEW ÷ 16) = VLEN ÷ 16.
 
-.Scale capacity (block_size = 32, VLEN = 256)
-[cols="1,1,1,1,1,1,1", options="header"]
+Each of the VLEN ÷ 16 positions is a 16-bit element, so the total is exactly
+VLEN bits — the scale data fills one register in every legal configuration.
+
+**R ≥ S proof** (tile stride is never smaller than the active count):
+
+* block_size = 32: The constraint W × LMUL ≤ 2 × SEW ensures
+  K_eff = λ × W × LMUL ≤ 2 × λ × SEW, so
+  S = ⌈K_eff / 32⌉ ≤ ⌈2 × λ × SEW / 32⌉ ≤ λ × SEW / 16 = R.
+* block_size = 16: The constraint W × LMUL ≤ SEW ensures
+  K_eff = λ × W × LMUL ≤ λ × SEW, so
+  S = ⌈K_eff / 16⌉ ≤ ⌈λ × SEW / 16⌉ ≤ λ × SEW / 16 = R.
+
+When S < R, positions _s_ ∈ [S, R) within each row are padding and their
+contents are ignored by the instruction.
+
+.Scale layout parameters (block_size = 32, VLEN = 256)
+[cols="1,1,1,1,1,1,1,1", options="header"]
 |===
-| SEW | λ | W | LMUL | M | S | 16-bit pairs (M×S)
+| SEW | λ | W | LMUL | M | S | R | 16-bit extent (M×R)
 
-| 8  | 2 | 1 | 1 | 16 | 1 | 16
-| 8  | 2 | 1 | 8 | 16 | 1 | 16
-| 8  | 2 | 2 | 1 | 16 | 1 | 16
-| 8  | 2 | 2 | 8 | 16 | 1 | 16
-| 16 | 1 | 1 | 1 | 16 | 1 | 16
-| 16 | 1 | 1 | 2 | 16 | 1 | 16
-| 16 | 1 | 2 | 1 | 16 | 1 | 16
-| 16 | 1 | 4 | 1 | 16 | 1 | 16
-| 16 | 1 | 4 | 8 | 16 | 1 | 16 ^footnote:maxpairs[Maximum: M×S × 16 = VLEN (K_eff = block_size)]
-| 16 | 2 | 4 | 1 | 8  | 1 | 8
-| 16 | 2 | 4 | 8 | 8  | 2 | 16 ^footnote:sgt1[S > 1: K_eff (64) exceeds block_size (32)]
-| 32 | 1 | 1 | 1 | 8  | 1 | 8
-| 32 | 1 | 2 | 1 | 8  | 1 | 8
-| 32 | 2 | 1 | 1 | 4  | 1 | 4
-| 64 | 1 | 1 | 1 | 4  | 1 | 4
+| 8  | 2 | 1 | 1 | 16 | 1 | 1 | 16
+| 8  | 2 | 1 | 8 | 16 | 1 | 1 | 16
+| 8  | 2 | 2 | 1 | 16 | 1 | 1 | 16
+| 8  | 2 | 2 | 8 | 16 | 1 | 1 | 16
+| 16 | 1 | 1 | 1 | 16 | 1 | 1 | 16
+| 16 | 1 | 1 | 2 | 16 | 1 | 1 | 16
+| 16 | 1 | 2 | 1 | 16 | 1 | 1 | 16
+| 16 | 1 | 4 | 1 | 16 | 1 | 1 | 16
+| 16 | 1 | 4 | 8 | 16 | 1 | 1 | 16 ^footnote:packfull[S = R: fully packed, no padding]
+| 16 | 2 | 4 | 1 | 8  | 1 | 2 | 16
+| 16 | 2 | 4 | 8 | 8  | 2 | 2 | 16 ^footnote:packfull[]
+| 32 | 1 | 1 | 1 | 8  | 1 | 2 | 16
+| 32 | 1 | 2 | 1 | 8  | 1 | 2 | 16
+| 32 | 2 | 1 | 1 | 4  | 1 | 4 | 16
+| 64 | 1 | 1 | 1 | 4  | 1 | 4 | 16
 |===
 
-Elements in `v0` beyond index M × S − 1 are ignored by the instruction
-and need not be initialised.
+Within each row stride, elements at positions _s_ ∈ [S, R) are padding
+and need not be initialised.  When S = R, the layout is fully packed with
+no padding.
 
 ===== Block size selection
 
@@ -646,21 +660,69 @@ where the limited dynamic range of the per-element format is compensated by
 the block-level E8M0 exponent, enabling high-throughput inference on
 microscaling-quantised models.
 
-===== Constructing paired scales from separate arrays
+===== Loading or constructing paired scales
 [NOTE]
 ====
 This section is _informative_ (non-normative).
 
-In typical deployment, E8M0 scales for A and B reside in separate memory
-regions and are combined into the paired 16-bit layout required by `v0`
-on demand.  The following sequences construct the paired layout from
-`M × S` bytes of `scale_A` (at address `a0`) and `M × S` bytes of
-`scale_B` (at address `a1`), with `M × S` in `a2`.
+The tile-strided scale layout in `v0` uses M × R 16-bit elements (always
+VLEN ÷ 16 elements, filling exactly one register).  Within each of the M
+row strides of length R, the first S positions are active and positions
+[S, R) are padding.  The following options are listed from simplest to most
+complex.
 
-*Option 1 — Base V (widen + shift + OR):*
+*Option 1 — Pre-paired tile-strided load via `vmtl.v` (single instruction):*
+
+When the application stores pre-paired (scale_A, scale_B) 16-bit elements
+in a 2D scale matrix (M rows, stride LD ≥ R between rows), a single
+`vmtl.v` loads the current tile's scales directly into `v0`:
 
 [source,asm]
 ----
+    # a0 = base of pre-paired scale sub-array for current tile
+    # a2 = M × R (= VLEN / 16)
+    # a3 = LD (leading dimension in 16-bit elements, LD ≥ R)
+    vsetvli  t0, a2, e16, m1, ta, ma
+    vmtl.v   v0, (a0), a3         # tile-load pre-paired scales
+----
+
+With EEW = 16 and LMUL = 1, linesize = λ = R (when SEW = 16).  Each
+`vmtl.v` line corresponds to one scale row, and LD allows rows to be
+non-contiguous in the outer scale matrix.  When LD = R, this reduces to a
+unit-stride load.
+
+NOTE: This form requires SEW = 16 (i.e., R = λ).  For SEW > 16, R > λ
+and a single `vmtl.v` cannot span a full scale row; use Option 2 instead.
+
+*Option 2 — Pre-paired flat load (`vle16.v`):*
+
+If the pre-paired tile-strided data is already contiguous in memory (M × R
+16-bit elements), a unit-stride load suffices:
+
+[source,asm]
+----
+    # a0 = pointer to contiguous pre-paired tile-strided scale array
+    # a2 = M × R (= VLEN / 16)
+    vsetvli  t0, a2, e16, m1, ta, ma
+    vle16.v  v0, (a0)
+----
+
+This works for all SEW values since M × R = VLEN ÷ 16 always.
+
+*Options 3–5 — Constructing from separate `scale_A` / `scale_B` arrays:*
+
+The following sequences construct the paired layout from separate
+`scale_A` and `scale_B` byte arrays, producing M × S contiguous pairs.
+This produces the correct tile-strided layout when S = R (fully packed).
+When S < R, the output must be placed at stride R, e.g., by storing
+the M × S pairs into a pre-zeroed M × R buffer before loading with
+Option 2.
+
+*Option 3 — Base V (widen + shift + OR):*
+
+[source,asm]
+----
+    # a0 = &scale_A, a1 = &scale_B (M × S bytes each), a2 = M × S
     vsetvli  t0, a2, e8, mf2, ta, ma
     vle8.v   v1, (a0)             # load scale_A
     vle8.v   v2, (a1)             # load scale_B
@@ -671,10 +733,11 @@ on demand.  The following sequences construct the paired layout from
     vor.vv   v0, v0, v3           # combine into paired layout
 ----
 
-*Option 2 — Zvbb (widening shift + OR):*
+*Option 4 — Zvbb (widening shift + OR):*
 
 [source,asm]
 ----
+    # a0 = &scale_A, a1 = &scale_B (M × S bytes each), a2 = M × S
     vsetvli  t0, a2, e8, mf2, ta, ma
     vle8.v   v1, (a0)             # load scale_A
     vle8.v   v2, (a1)             # load scale_B
@@ -684,10 +747,11 @@ on demand.  The following sequences construct the paired layout from
     vor.vv   v0, v0, v3           # combine into paired layout
 ----
 
-*Option 3 — Zvzip (interleave):*
+*Option 5 — Zvzip (interleave):*
 
 [source,asm]
 ----
+    # a0 = &scale_A, a1 = &scale_B (M × S bytes each), a2 = M × S
     vsetvli  t0, a2, e8, mf2, ta, ma
     vle8.v   v1, (a0)             # load scale_A
     vle8.v   v2, (a1)             # load scale_B
@@ -699,14 +763,33 @@ The `vzip.vv` instruction interleaves at SEW=8: the byte sequence
 elements yields `element[i] = B[i]<<8 | A[i]`, which is exactly the
 required paired layout.
 
+*Option 6 — Separate scales via `vmtl.v` + `vzip.vv` (SEW = 16):*
+
+When SEW = 16 and scales reside in separate 2D arrays, `vmtl.v` can load
+each scale array with the correct tile stride, then `vzip.vv` pairs them:
+
+[source,asm]
+----
+    # a0 = &scale_A, a1 = &scale_B (M rows, LD bytes between rows)
+    # a2 = M × R (= VLEN / 16), a3 = LD (leading dimension in elements)
+    vsetvli  t0, a2, e8, m1, ta, ma
+    vmtl.v   v1, (a0), a3          # tile-load scale_A
+    vmtl.v   v2, (a1), a3          # tile-load scale_B
+    vsetvli  t0, a2, e8, mf2, ta, ma
+    vzip.vv  v0, v1, v2            # pair into 16-bit layout
+----
+
 .Scale-packing instruction count comparison
 [cols="1,1,1,1", options="header"]
 |===
-| Extension | Data instructions | `vsetvli` calls | Total
+| Option | Data instructions | `vsetvli` calls | Total
 
-| Base V | 5 | 2 | 7
-| Zvbb   | 4 | 2 | 6
-| Zvzip  | 3 | 1 | 4
+| 1 (vmtl.v pre-paired)           | 1 | 1 | 2
+| 2 (vle16.v pre-paired)          | 1 | 1 | 2
+| 3 (Base V)                      | 5 | 2 | 7
+| 4 (Zvbb)                        | 4 | 2 | 6
+| 5 (Zvzip)                       | 3 | 1 | 4
+| 6 (vmtl.v + vzip.vv)            | 3 | 2 | 5
 |===
 ====
 
@@ -1522,6 +1605,7 @@ if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 // Block size and scale count
 let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
 let S : int = (K_eff + block_size - 1) / block_size;
+let R : int = lambda * EEW / 16;  // tile-strided row stride
 
 // BS=16 LMUL restriction: W × LMUL ≤ SEW
 if vm == 0 & vtype[bs] == 0b1 & (1 * LMUL > EEW) then return Illegal_Instruction();
@@ -1543,11 +1627,11 @@ foreach (j from 0 to (N - 1)) {
       // Read paired 16-bit scale element from v0
       let pair_A : bits(16) =
         if vm == 0
-        then read_single_element(16, i * S + s, zvreg(0))
+        then read_single_element(16, i * R + s, zvreg(0))
         else 0x0000;
       let pair_B : bits(16) =
         if vm == 0
-        then read_single_element(16, j * S + s, zvreg(0))
+        then read_single_element(16, j * R + s, zvreg(0))
         else 0x0000;
 
       let sA : bits(EEW) =
@@ -1676,6 +1760,7 @@ if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 // Block size and scale count
 let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
 let S : int = (K_eff + block_size - 1) / block_size;
+let R : int = lambda * EEW_C / 16;  // tile-strided row stride
 
 // BS=16 LMUL restriction: W × LMUL ≤ SEW
 if vm == 0 & vtype[bs] == 0b1 & (4 * LMUL > EEW_C) then return Illegal_Instruction();
@@ -1697,11 +1782,11 @@ foreach (j from 0 to (N - 1)) {
       // Read paired 16-bit scale element from v0
       let pair_A : bits(16) =
         if vm == 0
-        then read_single_element(16, i * S + s, zvreg(0))
+        then read_single_element(16, i * R + s, zvreg(0))
         else 0x0000;
       let pair_B : bits(16) =
         if vm == 0
-        then read_single_element(16, j * S + s, zvreg(0))
+        then read_single_element(16, j * R + s, zvreg(0))
         else 0x0000;
 
       let sA : bits(EEW_C) =
@@ -1830,6 +1915,7 @@ if MUL_C not in {1,2,4,8,16}  then return Illegal_Instruction();
 // Block size and scale count
 let block_size : int = if vtype[bs] == 0b1 then 16 else 32;
 let S : int = (K_eff + block_size - 1) / block_size;
+let R : int = lambda * EEW_C / 16;  // tile-strided row stride
 
 // BS=16 LMUL restriction: W × LMUL ≤ SEW
 if vm == 0 & vtype[bs] == 0b1 & (2 * LMUL > EEW_C) then return Illegal_Instruction();
@@ -1851,11 +1937,11 @@ foreach (j from 0 to (N - 1)) {
       // Read paired 16-bit scale element from v0
       let pair_A : bits(16) =
         if vm == 0
-        then read_single_element(16, i * S + s, zvreg(0))
+        then read_single_element(16, i * R + s, zvreg(0))
         else 0x0000;
       let pair_B : bits(16) =
         if vm == 0
-        then read_single_element(16, j * S + s, zvreg(0))
+        then read_single_element(16, j * R + s, zvreg(0))
         else 0x0000;
 
       let sA : bits(EEW_C) =
